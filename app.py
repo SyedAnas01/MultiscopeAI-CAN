@@ -18,37 +18,32 @@ import os
 # === STEP 1: Dataset Loading (Preloaded sample datasets) ===
 
 def load_sample_dataset(domain):
-    if domain == 'Agriculture':
-        url = 'https://raw.githubusercontent.com/OpenDataDE/State_Crop_Production/main/State_Crop_Production_2019.csv'
-        df = pd.read_csv(url)
-        df = df[df['Data Item'].str.contains('CORN')]
-        df = df.groupby('Year').agg({'Value': 'sum'}).reset_index()
-        df.rename(columns={'Year': 'date', 'Value': 'value'}, inplace=True)
-        df['date'] = pd.to_datetime(df['date'], format='%Y')
-    
-    elif domain == 'Energy':
-        url = 'https://raw.githubusercontent.com/numenta/NAB/master/data/realKnownCause/ambient_temperature_system_failure.csv'
-        df = pd.read_csv(url)
-        df.rename(columns={'timestamp': 'date', 'value': 'value'}, inplace=True)
-        df['date'] = pd.to_datetime(df['date'])
-    
-    elif domain == 'Retail':
-        url = 'https://raw.githubusercontent.com/selva86/datasets/master/SuperstoreSales.csv'
-        df = pd.read_csv(url)
-        df = df.groupby('Order Date').agg({'Sales': 'sum'}).reset_index()
+    if domain == 'Retail':
+        df = pd.read_csv('data/Global_Superstore2.csv')
         df.rename(columns={'Order Date': 'date', 'Sales': 'value'}, inplace=True)
         df['date'] = pd.to_datetime(df['date'])
-    
+        df = df[['date', 'value']].dropna()
+
+    elif domain == 'Energy':
+        df = pd.read_csv('data/API_EG.FEC.RNEW.ZS_DS2_en_csv_v2_13732.csv', skiprows=4)
+        df.rename(columns={'Country Name': 'Country', '2020': 'value'}, inplace=True)
+        df = df[df['Country'] == 'Canada']
+        df = df[['Country', 'value']].dropna()
+        # For consistency, add a date column (mock with year)
+        df['date'] = pd.to_datetime('2020')
+        df = df[['date', 'value']]
+
     elif domain == 'Traffic':
-        url = 'https://raw.githubusercontent.com/PacktPublishing/Hands-On-Time-Series-Analysis-with-R/master/Chapter%2005/data/traffic.csv'
-        df = pd.read_csv(url)
-        df.rename(columns={'time': 'date', 'traffic_volume': 'value'}, inplace=True)
+        df = pd.read_csv('data/Traffic Volume in Victoria Canada.csv')
+        df.rename(columns={'Date': 'date', 'Volume': 'value'}, inplace=True)
         df['date'] = pd.to_datetime(df['date'])
-    
+        df = df[['date', 'value']].dropna()
+
     else:
         raise ValueError('Unknown domain')
 
     return df
+
 
 # === STEP 2: Preprocessing ===
 
